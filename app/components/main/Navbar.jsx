@@ -1,6 +1,30 @@
 import React from 'react';
+import { useRouter } from 'next/navigation';
+import nookies from 'nookies';
 
-export default function Navbar() {
+export default function Navbar({ userInfo }) {
+    const router = useRouter();
+    async function userSignout() {
+        const res = await fetch('/api/user/logout', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const statusCode = res.status; // Here's where you get the status code
+        const data = await res.json();
+
+        if (statusCode !== 200) {
+            console.log(statusCode);
+            window.alert(data.message);
+            router.replace('/');
+        } else {
+            nookies.destroy(null, 'token');
+            window.alert('Sign out successfully');
+            router.replace('/login');
+        }
+    }
     return (
         <>
             <nav className="fixed z-30 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
@@ -42,7 +66,7 @@ export default function Navbar() {
                             </button>
                             <a href="/" className="flex ml-2 md:mr-24">
                                 <img
-                                    src="./nerdy-man.webp"
+                                    src="/nerdy-man.webp"
                                     className="h-12 mr-3"
                                     alt="Nerdy Library Logo"
                                 />
@@ -362,24 +386,32 @@ export default function Navbar() {
                                             className="text-sm text-gray-900 dark:text-white"
                                             role="none"
                                         >
-                                            Neil Sims
+                                            {userInfo.name}
                                         </p>
                                         <p
                                             className="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
                                             role="none"
                                         >
-                                            neil.sims@flowbite.com
+                                            {userInfo.email}
                                         </p>
                                     </div>
                                     <ul className="py-1" role="none">
                                         <li>
-                                            <a
-                                                href="#"
+                                            <button
+                                                onClick={() => {
+                                                    if (
+                                                        window.confirm(
+                                                            'Are you sure you want to logout?',
+                                                        )
+                                                    ) {
+                                                        userSignout();
+                                                    }
+                                                }}
                                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                                                 role="menuitem"
                                             >
                                                 Sign out
-                                            </a>
+                                            </button>
                                         </li>
                                     </ul>
                                 </div>

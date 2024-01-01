@@ -52,7 +52,7 @@ export default function SideBar({ children }) {
                                     </li>
                                     <li>
                                         <a
-                                            href="https://flowbite-admin-dashboard.vercel.app/"
+                                            href="/"
                                             className="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"
                                         >
                                             <svg
@@ -81,7 +81,7 @@ export default function SideBar({ children }) {
                         >
                             <div className="pt-2 space-y-2 mt-auto">
                                 <a
-                                    href="https://github.com/themesberg/flowbite-admin-dashboard"
+                                    href="/user"
                                     target="_blank"
                                     className="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"
                                 >
@@ -124,7 +124,10 @@ export default function SideBar({ children }) {
                                     className="mr-4 text-sm font-normal text-gray-500 hover:underline md:mr-6 dark:text-gray-400"
                                 >
                                     © 2023 Irfan Noor Hidayat . All rights
-                                    reserved
+                                    reserved.{' '}
+                                    <span className="font-semibold">
+                                        Reload if something wrong
+                                    </span>
                                 </a>
                             </li>
                         </ul>
@@ -221,6 +224,7 @@ export default function SideBar({ children }) {
             ></script>
             <script src="https://flowbite-admin-dashboard.vercel.app//app.bundle.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.2/datepicker.min.js"></script>
+            {/* <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script> */}
         </>
     );
 }

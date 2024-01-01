@@ -38,7 +38,7 @@ export default function Form() {
                 maxAge: 1 * 24 * 60 * 60,
                 path: '/',
             });
-            router.push('/');
+            router.replace('/');
         } else {
             setAlertMessage(message);
             setIsAlert(true);

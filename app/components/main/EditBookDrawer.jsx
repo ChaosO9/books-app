@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Datepicker } from 'flowbite-react';
 import { parseCookies } from 'nookies';
 import Alert from '../login-signup/Alert';
+import { fetchBaseURL } from '@/app/lib/fetchBaseURL';
+import { useRouter } from 'next/router';
 
 export default function EditBookDrawer({ selectedISBN }) {
     const { token } = parseCookies();
@@ -22,7 +24,7 @@ export default function EditBookDrawer({ selectedISBN }) {
     let statusCode = '';
 
     useEffect(() => {
-        const res = fetch('/api/books/' + selectedISBN, {
+        const res = fetch(fetchBaseURL + '/api/books/' + selectedISBN, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

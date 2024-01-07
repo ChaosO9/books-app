@@ -1,11 +1,12 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import nookies from 'nookies';
+import { fetchBaseURL } from '@/app/lib/fetchBaseURL';
 
 export default function Navbar({ userInfo }) {
     const router = useRouter();
     async function userSignout() {
-        const res = await fetch('/api/user/logout', {
+        const res = await fetch(fetchBaseURL + '/api/user/logout', {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

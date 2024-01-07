@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { setCookie } from 'nookies';
 import Link from 'next/link';
 import Alert from '../components/login-signup/alert';
+import { fetchBaseURL } from '../lib/fetchBaseURL';
+import { base_url } from '@/dotenv/config';
 export default function Form() {
     const router = useRouter();
 
@@ -23,7 +25,7 @@ export default function Form() {
         e.preventDefault();
         setIsLoading(true);
 
-        const res = await fetch('/api/login', {
+        const res = await fetch(fetchBaseURL + '/api/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

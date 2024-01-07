@@ -5,11 +5,13 @@ import { parseCookies } from 'nookies';
 import { useRouter } from 'next/navigation';
 import Alert from '@/app/components/login-signup/Alert';
 import MainEditView from '@/app/components/main/MainEditView';
+import { fetchBaseURL } from '@/app/lib/fetchBaseURL';
+import jwt from 'jsonwebtoken';
 
 export default function page({ params, userInfo }) {
     const router = useRouter();
 
-    const [isbn, setISBN] = useState('');
+    const [bookId, setBookID] = useState('');
     const [title, setTitle] = useState('');
     const [subtitle, setSubtitle] = useState('');
     const [author, setAuthor] = useState('');
@@ -19,18 +21,38 @@ export default function page({ params, userInfo }) {
     const [description, setDescription] = useState('');
     const [website, setWebsite] = useState('');
     const [book, setBook] = useState('');
+    const [coverImage, setCoverImage] = useState(null);
+    const [bookFile, setBookFile] = useState(null);
     const [isAlert, setIsAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
+    const [userId, setUserID] = useState('');
+    const [category_id, setCategoryID] = useState('');
+    const [categories, setCategories] = useState('');
     const book_id = params.book_id;
     const { token } = parseCookies();
     let statusCode = '';
+
+    const formData = new FormData();
+    formData.append('id', book_id);
+    formData.append('cover_image', coverImage);
+    formData.append('book_file', bookFile);
+    formData.append('title', title);
+    formData.append('subtitle', subtitle);
+    formData.append('author', author);
+    formData.append('published', published);
+    formData.append('publisher', publisher);
+    formData.append('pages', pages);
+    formData.append('description', description);
+    formData.append('website', website);
+    formData.append('category', category_id);
+    formData.append('created_by', userId);
 
     function backHome() {
         router.replace('/');
     }
 
     useEffect(() => {
-        const res = fetch('/api/books/' + book_id, {
+        const res = fetch(fetchBaseURL + '/api/books/' + book_id, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -54,7 +76,9 @@ export default function page({ params, userInfo }) {
                     const dateFormatted = `${dateOnly[1]}-${dateOnly[2]}-${dateOnly[0]}`;
                     data.datepickerValue = dateFormatted;
 
-                    setISBN(data.book.isbn);
+                    setUserID(jwt.decode(token).id);
+
+                    setBookID(data.book.id);
                     setTitle(data.book.title);
                     setSubtitle(data.book.subtitle);
                     setAuthor(data.book.author);
@@ -64,7 +88,20 @@ export default function page({ params, userInfo }) {
                     setDescription(data.book.description);
                     setWebsite(data.book.website);
                     setBook(data.book);
+                    setCategoryID(data.book.category);
                 }
+            });
+
+        fetch(fetchBaseURL + '/api/categories', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + token,
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                setCategories(data.data);
             });
     }, []);
 
@@ -75,28 +112,18 @@ export default function page({ params, userInfo }) {
     async function editBook(e) {
         e.preventDefault();
 
-        const bookDetail = {
-            isbn,
-            title,
-            subtitle,
-            author,
-            published,
-            publisher,
-            pages,
-            description,
-            website,
-        };
-
         const { token } = parseCookies();
 
-        const res = await fetch('/api/books/' + book_id + '/edit', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + token,
+        const res = await fetch(
+            fetchBaseURL + '/api/books/' + book_id + '/edit',
+            {
+                method: 'POST',
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+                body: formData,
             },
-            body: JSON.stringify(bookDetail),
-        });
+        );
 
         const statusCode = res.status;
         const data = await res.json();
@@ -108,6 +135,39 @@ export default function page({ params, userInfo }) {
         } else {
             router.replace('/');
         }
+    }
+
+    async function getBookFile() {
+        // const { token } = parseCookies();
+
+        // const res = await fetch(
+        //     fetchBaseURL + '/api/books/' + book_id + '/pdf',
+        //     {
+        //         method: 'GET',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             Authorization: 'Bearer ' + token,
+        //         },
+        //     },
+        // ).catch((err) => console.log(err.message));
+
+        // const statusCode = res.status;
+        // const data = await res.json();
+
+        // if (statusCode !== 200) {
+        //     console.log(statusCode);
+        //     setAlertMessage(data.message);
+        //     setIsAlert(true);
+        // }
+
+        window.open(fetchBaseURL + '/api/books/' + book_id + '/pdf', '_blank');
+    }
+
+    async function getCoverImage() {
+        window.open(
+            fetchBaseURL + '/api/books/' + book_id + '/cover_image',
+            '_blank',
+        );
     }
     return (
         <>
@@ -441,6 +501,58 @@ export default function page({ params, userInfo }) {
                                             }
                                         />
                                     </div>
+                                    <div className="sm:col-span-2">
+                                        <>
+                                            <label
+                                                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                                htmlFor="default_size"
+                                            >
+                                                Upload Cover Image
+                                            </label>
+                                            <input
+                                                className="block w-full text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                                                id="default_size"
+                                                type="file"
+                                                onChange={(e) =>
+                                                    setCoverImage(
+                                                        e.target.files[0],
+                                                    )
+                                                }
+                                            />
+                                            <div
+                                                class="pt-1 text-sm text-gray-500 dark:text-gray-300"
+                                                id="user_avatar_help"
+                                            >
+                                                File Type: JPEG/JPG/PNG
+                                            </div>
+                                        </>
+                                    </div>
+                                    <div className="sm:col-span-2">
+                                        <>
+                                            <label
+                                                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                                htmlFor="default_size"
+                                            >
+                                                Upload Book
+                                            </label>
+                                            <input
+                                                className="block w-full text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                                                id="default_size"
+                                                type="file"
+                                                onChange={(e) =>
+                                                    setBookFile(
+                                                        e.target.files[0],
+                                                    )
+                                                }
+                                            />
+                                            <div
+                                                class="pt-1 mb-2 text-sm text-gray-500 dark:text-gray-300"
+                                                id="user_avatar_help"
+                                            >
+                                                File Type: PDF
+                                            </div>
+                                        </>
+                                    </div>
                                 </div>
                                 <div className="space-y-4 sm:space-y-6">
                                     <div>
@@ -487,17 +599,17 @@ export default function page({ params, userInfo }) {
                                             htmlFor="product-brand"
                                             className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                                         >
-                                            ISBN Number
+                                            Book ID
                                         </label>
                                         <input
                                             type="number"
                                             id="product-brand"
                                             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                            defaultValue={book.isbn}
+                                            defaultValue={book.id}
                                             placeholder="Ex. 38723978"
                                             required=""
                                             onChange={(e) =>
-                                                setISBN(e.target.value)
+                                                setBookID(e.target.value)
                                             }
                                         />
                                     </div>
@@ -540,6 +652,110 @@ export default function page({ params, userInfo }) {
                                                 setPages(e.target.value)
                                             }
                                         />
+                                    </div>
+                                    <div>
+                                        <label
+                                            htmlFor="category"
+                                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                        >
+                                            Category
+                                        </label>
+                                        <select
+                                            id="category"
+                                            value={category_id}
+                                            onChange={(e) =>
+                                                setCategoryID(e.target.value)
+                                            }
+                                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                        >
+                                            {categories &&
+                                            categories.length > 0 ? (
+                                                <>
+                                                    <option value="SL">
+                                                        Select category
+                                                    </option>
+                                                    {categories.map(
+                                                        (category) => (
+                                                            <option
+                                                                value={
+                                                                    category.id
+                                                                }
+                                                            >
+                                                                {
+                                                                    category.category
+                                                                }
+                                                            </option>
+                                                        ),
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <option value="SL">
+                                                    Select category
+                                                </option>
+                                            )}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label
+                                            htmlFor="breadth"
+                                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                        >
+                                            Book File
+                                            {!book.book_file && (
+                                                <span>(No Book File)</span>
+                                            )}
+                                        </label>
+                                        <button
+                                            type="button"
+                                            className="text-white inline-flex bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 disabled:bg-slate-500"
+                                            onClick={getBookFile}
+                                            disabled={
+                                                book.book_file ? false : true
+                                            }
+                                        >
+                                            <svg
+                                                class="w-5 h-5 mr-1 -ml-1"
+                                                fill="currentColor"
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20"
+                                            >
+                                                <path d="M14.707 7.793a1 1 0 0 0-1.414 0L11 10.086V1.5a1 1 0 0 0-2 0v8.586L6.707 7.793a1 1 0 1 0-1.414 1.414l4 4a1 1 0 0 0 1.416 0l4-4a1 1 0 0 0-.002-1.414Z" />
+                                                <path d="M18 12h-2.55l-2.975 2.975a3.5 3.5 0 0 1-4.95 0L4.55 12H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2Zm-3 5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
+                                            </svg>
+                                            Download
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <label
+                                            htmlFor="breadth"
+                                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                        >
+                                            Cover Image File{' '}
+                                            {!book.cover_image && (
+                                                <span>(No Cover Image)</span>
+                                            )}
+                                        </label>
+                                        <button
+                                            type="button"
+                                            className="text-white inline-flex bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 disabled:bg-slate-500"
+                                            onClick={getCoverImage}
+                                            disabled={
+                                                book.cover_image ? false : true
+                                            }
+                                        >
+                                            <svg
+                                                class="w-5 h-5 mr-1 -ml-1"
+                                                fill="currentColor"
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20"
+                                            >
+                                                <path d="M14.707 7.793a1 1 0 0 0-1.414 0L11 10.086V1.5a1 1 0 0 0-2 0v8.586L6.707 7.793a1 1 0 1 0-1.414 1.414l4 4a1 1 0 0 0 1.416 0l4-4a1 1 0 0 0-.002-1.414Z" />
+                                                <path d="M18 12h-2.55l-2.975 2.975a3.5 3.5 0 0 1-4.95 0L4.55 12H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2Zm-3 5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
+                                            </svg>
+                                            Download
+                                        </button>
                                     </div>
                                 </div>
                             </div>

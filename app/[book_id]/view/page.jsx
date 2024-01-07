@@ -5,6 +5,7 @@ import { parseCookies } from 'nookies';
 import { useRouter } from 'next/navigation';
 import Alert from '@/app/components/login-signup/Alert';
 import MainEditView from '@/app/components/main/MainEditView';
+import { fetchBaseURL } from '@/app/lib/fetchBaseURL';
 
 export default function page({ params }) {
     const router = useRouter();
@@ -26,7 +27,7 @@ export default function page({ params }) {
     let statusCode = '';
 
     useEffect(() => {
-        const res = fetch('/api/books/' + book_id, {
+        const res = fetch(fetchBaseURL + '/api/books/' + book_id, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -50,7 +51,7 @@ export default function page({ params }) {
                     const dateFormatted = `${dateOnly[1]}-${dateOnly[2]}-${dateOnly[0]}`;
                     data.datepickerValue = dateFormatted;
 
-                    setISBN(data.book.isbn);
+                    setISBN(data.book.id);
                     setTitle(data.book.title);
                     setSubtitle(data.book.subtitle);
                     setAuthor(data.book.author);
@@ -66,6 +67,17 @@ export default function page({ params }) {
 
     function handleDatePickerEditBook(date) {
         setPublished(date);
+    }
+
+    async function getBookFile() {
+        window.open(fetchBaseURL + '/api/books/' + book_id + '/pdf', '_blank');
+    }
+
+    async function getCoverImage() {
+        window.open(
+            fetchBaseURL + '/api/books/' + book_id + '/cover_image',
+            '_blank',
+        );
     }
 
     return (
@@ -445,13 +457,13 @@ export default function page({ params }) {
                                             htmlFor="product-brand"
                                             className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                                         >
-                                            ISBN Number
+                                            Book ID
                                         </label>
                                         <input
                                             type="number"
                                             id="product-brand"
                                             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                            defaultValue={book.isbn}
+                                            defaultValue={book.id}
                                             placeholder="Ex. 38723978"
                                             required=""
                                             onChange={(e) =>
@@ -498,6 +510,68 @@ export default function page({ params }) {
                                                 setPages(e.target.value)
                                             }
                                         />
+                                    </div>
+                                    <div>
+                                        <label
+                                            htmlFor="breadth"
+                                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                        >
+                                            Book File
+                                            {!book.book_file && (
+                                                <span>(No Book File)</span>
+                                            )}
+                                        </label>
+                                        <button
+                                            type="button"
+                                            className="text-white inline-flex bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 disabled:bg-slate-500"
+                                            onClick={getBookFile}
+                                            disabled={
+                                                book.book_file ? false : true
+                                            }
+                                        >
+                                            <svg
+                                                class="w-5 h-5 mr-1 -ml-1"
+                                                fill="currentColor"
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20"
+                                            >
+                                                <path d="M14.707 7.793a1 1 0 0 0-1.414 0L11 10.086V1.5a1 1 0 0 0-2 0v8.586L6.707 7.793a1 1 0 1 0-1.414 1.414l4 4a1 1 0 0 0 1.416 0l4-4a1 1 0 0 0-.002-1.414Z" />
+                                                <path d="M18 12h-2.55l-2.975 2.975a3.5 3.5 0 0 1-4.95 0L4.55 12H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2Zm-3 5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
+                                            </svg>
+                                            Download
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <label
+                                            htmlFor="breadth"
+                                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                        >
+                                            Cover Image File{' '}
+                                            {!book.cover_image && (
+                                                <span>(No Cover Image)</span>
+                                            )}
+                                        </label>
+                                        <button
+                                            type="button"
+                                            className="text-white inline-flex bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 disabled:bg-slate-500"
+                                            onClick={getCoverImage}
+                                            disabled={
+                                                book.cover_image ? false : true
+                                            }
+                                        >
+                                            <svg
+                                                class="w-5 h-5 mr-1 -ml-1"
+                                                fill="currentColor"
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20"
+                                            >
+                                                <path d="M14.707 7.793a1 1 0 0 0-1.414 0L11 10.086V1.5a1 1 0 0 0-2 0v8.586L6.707 7.793a1 1 0 1 0-1.414 1.414l4 4a1 1 0 0 0 1.416 0l4-4a1 1 0 0 0-.002-1.414Z" />
+                                                <path d="M18 12h-2.55l-2.975 2.975a3.5 3.5 0 0 1-4.95 0L4.55 12H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2Zm-3 5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
+                                            </svg>
+                                            Download
+                                        </button>
                                     </div>
                                 </div>
                             </div>

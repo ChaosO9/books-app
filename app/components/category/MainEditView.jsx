@@ -1,8 +1,8 @@
 'use client';
 import { useState, useEffect, Suspense } from 'react';
 import { parseCookies } from 'nookies';
-import MainLayout from './MainLayout';
 import { fetchBaseURL } from '@/app/lib/fetchBaseURL';
+import MainLayout from '../main/MainLayout';
 
 export default function MainEditView({ children }) {
     const [userInfo, setUserInfo] = useState('');

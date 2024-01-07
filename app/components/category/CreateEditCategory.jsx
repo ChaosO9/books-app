@@ -1,94 +1,15 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { parseCookies } from 'nookies';
-import { Datepicker } from 'flowbite-react';
+import React from 'react';
 import Alert from '../login-signup/Alert';
-import { fetchBaseURL } from '@/app/lib/fetchBaseURL';
-import jwt from 'jsonwebtoken';
+import { useState } from 'react';
+import { Datepicker } from 'flowbite-react';
 
-export default function EditBook({}) {
-    const router = useRouter();
-
-    const [book_id, setBookID] = useState('');
-    const [title, setTitle] = useState('');
-    const [subtitle, setSubtitle] = useState('');
-    const [author, setAuthor] = useState('');
-    const [published, setPublished] = useState('');
-    const [publisher, setPublisher] = useState('');
-    const [pages, setPages] = useState('');
-    const [description, setDescription] = useState('');
-    const [website, setWebsite] = useState('');
-    const [category_id, setCategoryID] = useState('');
-    const [userId, setUserID] = useState('');
+export default function EditBook() {
     const [isAlert, setIsAlert] = useState(false);
-    const [alertMessage, setAlertMessage] = useState('');
-    const [categories, setCategories] = useState('');
-    const [coverImage, setCoverImage] = useState('');
-    const [bookFile, setBookFile] = useState('');
     const [date, setDate] = useState('');
-    const { token } = parseCookies();
-
-    const formData = new FormData();
-    formData.append('id', book_id);
-    formData.append('cover_image', coverImage);
-    formData.append('book_file', bookFile);
-    formData.append('title', title);
-    formData.append('subtitle', subtitle);
-    formData.append('author', author);
-    formData.append('published', published);
-    formData.append('publisher', publisher);
-    formData.append('pages', pages);
-    formData.append('description', description);
-    formData.append('website', website);
-    formData.append('category', category_id);
-    formData.append('created_by', userId);
-
-    useEffect(() => {
-        fetch(fetchBaseURL + '/api/categories', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + token,
-            },
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                setCategories(data.data);
-            });
-    }, []);
 
     function handleDatePickerChange(date) {
         setPublished(date);
         console.log(date);
-    }
-
-    async function addBook(e) {
-        e.preventDefault();
-
-        const { token } = parseCookies();
-        setUserID(jwt.decode(token).id);
-
-        const res = await fetch(fetchBaseURL + '/api/books/add', {
-            method: 'POST',
-            headers: {
-                Authorization: 'Bearer ' + token,
-            },
-            body: formData,
-        }).catch((error) => {
-            setAlertMessage(error.message);
-            setIsAlert(true);
-        });
-
-        const statusCode = res.status; // Here's where you get the status code
-        const data = await res.json();
-
-        if (statusCode !== 200) {
-            console.log(statusCode);
-            // setAlertMessage(data.message);
-            // setIsAlert(true);
-        } else {
-            router.replace('/');
-        }
     }
     return (
         <>
@@ -105,7 +26,7 @@ export default function EditBook({}) {
                         {/* Modal header */}
                         <div className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                Add Book
+                                Add Category
                             </h3>
                             <button
                                 type="button"
@@ -129,7 +50,15 @@ export default function EditBook({}) {
                             </button>
                         </div>
                         {/* Modal body */}
-                        <form onSubmit={addBook}>
+                        <form>
+                            {isAlert ? (
+                                <Alert
+                                    key={alertMessage}
+                                    message={alertMessage}
+                                />
+                            ) : (
+                                ''
+                            )}
                             <div className="grid gap-4 mb-4 sm:grid-cols-2">
                                 <div>
                                     <label
@@ -204,7 +133,7 @@ export default function EditBook({}) {
                                         placeholder="Type ISBN number"
                                         required=""
                                         onChange={(e) =>
-                                            setBookID(e.target.value)
+                                            setISBN(e.target.value)
                                         }
                                     />
                                 </div>
@@ -296,39 +225,7 @@ export default function EditBook({}) {
                                         }
                                     />
                                 </div>
-                                <div>
-                                    <label
-                                        htmlFor="category"
-                                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                                    >
-                                        Category
-                                    </label>
-                                    <select
-                                        id="category"
-                                        defaultValue={'SL'}
-                                        onChange={(e) =>
-                                            setCategoryID(e.target.value)
-                                        }
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    >
-                                        {categories && categories.length > 0 ? (
-                                            <>
-                                                <option value="SL">
-                                                    Select category
-                                                </option>
-                                                {categories.map((category) => (
-                                                    <option value={category.id}>
-                                                        {category.category}
-                                                    </option>
-                                                ))}
-                                            </>
-                                        ) : (
-                                            <option value="SL">
-                                                Select category
-                                            </option>
-                                        )}
-                                    </select>
-                                </div>
+
                                 <div className="sm:col-span-2">
                                     <label
                                         htmlFor="description"
@@ -347,64 +244,7 @@ export default function EditBook({}) {
                                         }
                                     />
                                 </div>
-                                <div className="sm:col-span-2">
-                                    <>
-                                        <label
-                                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                                            htmlFor="default_size"
-                                        >
-                                            Upload Cover Image
-                                        </label>
-                                        <input
-                                            className="block w-full text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                                            id="default_size"
-                                            type="file"
-                                            onChange={(e) =>
-                                                setCoverImage(e.target.files[0])
-                                            }
-                                        />
-                                        <div
-                                            class="pt-1 text-sm text-gray-500 dark:text-gray-300"
-                                            id="user_avatar_help"
-                                        >
-                                            File Type: JPEG/JPG/PNG
-                                        </div>
-                                    </>
-                                </div>
-                                <div className="sm:col-span-2">
-                                    <>
-                                        <label
-                                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                                            htmlFor="default_size"
-                                        >
-                                            Upload Book
-                                        </label>
-                                        <input
-                                            className="block w-full text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                                            id="default_size"
-                                            type="file"
-                                            onChange={(e) =>
-                                                setBookFile(e.target.files[0])
-                                            }
-                                        />
-                                        <div
-                                            class="pt-1 mb-2 text-sm text-gray-500 dark:text-gray-300"
-                                            id="user_avatar_help"
-                                        >
-                                            File Type: PDF
-                                        </div>
-                                    </>
-                                </div>
                             </div>
-
-                            {isAlert ? (
-                                <Alert
-                                    key={alertMessage}
-                                    message={alertMessage}
-                                />
-                            ) : (
-                                ''
-                            )}
 
                             <div className="items-center space-y-4 sm:flex sm:space-y-0 sm:space-x-4">
                                 <button

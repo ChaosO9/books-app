@@ -1,6 +1,9 @@
 import React from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function SideBar({ children }) {
+    const router = useRouter();
     return (
         <>
             <div className="flex pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900">
@@ -51,7 +54,7 @@ export default function SideBar({ children }) {
                                         </form>
                                     </li>
                                     <li>
-                                        <a
+                                        <Link
                                             href="/"
                                             className="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"
                                         >
@@ -70,7 +73,27 @@ export default function SideBar({ children }) {
                                             >
                                                 Books
                                             </span>
-                                        </a>
+                                        </Link>
+                                        <Link
+                                            href="/categories"
+                                            className="flex items-center px-2 pb-2 pt-3 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"
+                                        >
+                                            <svg
+                                                className="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="currentColor"
+                                                viewBox="0 0 18 18"
+                                            >
+                                                <path d="M17 11h-2.722L8 17.278a5.512 5.512 0 0 1-.9.722H17a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1ZM6 0H1a1 1 0 0 0-1 1v13.5a3.5 3.5 0 1 0 7 0V1a1 1 0 0 0-1-1ZM3.5 15.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2ZM16.132 4.9 12.6 1.368a1 1 0 0 0-1.414 0L9 3.55v9.9l7.132-7.132a1 1 0 0 0 0-1.418Z" />
+                                            </svg>
+                                            <span
+                                                className="ml-3"
+                                                sidebar-toggle-item=""
+                                            >
+                                                Categories
+                                            </span>
+                                        </Link>
                                     </li>
                                 </ul>
                             </div>

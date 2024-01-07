@@ -5,6 +5,7 @@ import { parseCookies } from 'nookies';
 import { useRouter } from 'next/navigation';
 import Alert from '@/app/components/login-signup/Alert';
 import MainEditView from '../components/main/MainEditView';
+import { fetchBaseURL } from '../lib/fetchBaseURL';
 
 export default function page({ params }) {
     const router = useRouter();
@@ -22,7 +23,7 @@ export default function page({ params }) {
     let statusCode = '';
 
     useEffect(() => {
-        const res = fetch('/api/user', {
+        const res = fetch(fetchBaseURL + '/api/user', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

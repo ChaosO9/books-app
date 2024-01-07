@@ -1,16 +1,15 @@
 'use client';
 import { useState, useEffect, Suspense } from 'react';
-import MainLayout from './components/main/MainLayout';
-import ItemTable from './components/main/ItemTable';
-import withAuth from './lib/PageAuth';
-import MainPage from './components/main/MainPage';
+import withAuth from '../lib/PageAuth';
+import { fetchBaseURL } from '../lib/fetchBaseURL';
 import { parseCookies } from 'nookies';
-import Loading from './components/main/Loading';
-import { fetchBaseURL } from './lib/fetchBaseURL';
+import MainLayout from '../components/main/MainLayout';
+import ItemTable from '../components/category/ItemTable';
+import MainPage from '../components/category/MainPage';
 // import { GetServerSideProps } from 'next';
 
 function BookListPage() {
-    const [books, setBooks] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [mainInfo, setMainInfo] = useState('');
     const [userInfo, setUserInfo] = useState('');
     const [selectedBookISBN, setSelectedBookISBN] = useState('1');
@@ -18,7 +17,7 @@ function BookListPage() {
     const { token } = parseCookies();
 
     useEffect(() => {
-        fetch(fetchBaseURL + '/api/books', {
+        fetch(fetchBaseURL + '/api/categories', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -27,9 +26,10 @@ function BookListPage() {
         })
             .then((response) => response.json())
             .then((data) => {
-                setBooks(data.data);
+                setCategories(data.data);
                 setMainInfo(data);
             });
+
         fetch(fetchBaseURL + '/api/user', {
             method: 'GET',
             headers: {
@@ -45,16 +45,11 @@ function BookListPage() {
 
     return (
         <MainLayout userInfo={userInfo}>
-            <MainPage
-                books={books}
-                setBooks={setBooks}
-                selectedISBN={selectedBookISBN}
-                mainInfo={mainInfo}
-            >
+            <MainPage selectedISBN={selectedBookISBN} mainInfo={mainInfo}>
                 <ItemTable
                     selectedBookISBN={selectedBookISBN}
                     setSelectedBookISBN={setSelectedBookISBN}
-                    books={books}
+                    categories={categories}
                 />
             </MainPage>
         </MainLayout>

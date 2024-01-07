@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
 import Alert from '../components/login-signup/alert';
+import { fetchBaseURL } from '../lib/fetchBaseURL';
 
 export default function Form() {
     const router = useRouter();
@@ -21,14 +22,14 @@ export default function Form() {
         name,
         email,
         password,
-        confirm_password,
+        password_confirmation: confirm_password,
     };
 
     async function handleSubmit(e) {
         e.preventDefault();
         setIsLoading(true);
 
-        const res = await fetch('/api/register', {
+        const res = await fetch(fetchBaseURL + '/api/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

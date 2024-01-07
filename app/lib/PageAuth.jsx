@@ -4,6 +4,7 @@ import { parseCookies } from 'nookies';
 import jwt from 'jsonwebtoken'; // make sure to install jsonwebtoken package
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { fetchBaseURL } from './fetchBaseURL';
 
 export default function withAuth(WrappedComponent) {
     return function WithAuthComponent(props) {
@@ -12,16 +13,18 @@ export default function withAuth(WrappedComponent) {
 
         useEffect(() => {
             if (!token) {
-                router.push('/login');
+                // console.log('Harusnya ke menu login');
+                router.replace('/login');
                 return;
             }
 
             async function verifyJWT() {
                 try {
-                    const res = await fetch('/api/verifyjwt', {
+                    const res = await fetch(fetchBaseURL + '/api/verifyjwt', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            Authorization: 'Bearer ' + token,
                         },
                         body: JSON.stringify({
                             token,
